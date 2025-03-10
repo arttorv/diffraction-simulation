@@ -1,11 +1,11 @@
 # Simulation of structural colors from periodic grating 
 
-Simualtion 1: Diffraction Orders Overview
-![Example Image 1](images/diff_order_overview.png)
+## Simulation 1: Diffraction Orders Overview
+<img src="images/diff_order_overview.png" alt="Example Image 1" width="400"/>
 
-Simualtion 2: Objective View Plot
-![Example Image 1](images/obj_overview.png)
+## Simulation 2: Objective View Plot
+<img src="images/obj_overview.png" alt="Example Image 2" width="400"/>
 
-Simualtion 3: Rotatinator View Plot
-![Example Image 1](images/rotatinator_view.png)
+## Simulation 3: Rotatinator View Plot
+<img src="images/rotatinator_view.png" alt="Example Image 3" width="400"/>
 
