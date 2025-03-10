@@ -103,7 +103,7 @@ def rotatinator_view(period, inc_angle=0, angle_res=0.5, wl_range=[400, 720], m_
         ax.axhline(-m + 0.5, color='gray', linewidth=2)
 
     
-    plt.show()
+    plt.show(block = False)
 
 def objective_view(period, 
                 inc_angle, 
@@ -174,7 +174,7 @@ def objective_view(period,
     ax.set_title(title_line_1 + '\n' + title_line_2 + '\n' + title_line_3)
     ax.legend()
     
-    plt.show()      
+    plt.show(block=False)      
 
 def polar_orders_overview(period, 
                 inc_angle, 
@@ -266,6 +266,6 @@ def polar_orders_overview(period,
 
     update(None)  # Initial plot
 
-    plt.show()
+    plt.show(block=False)
 
 
