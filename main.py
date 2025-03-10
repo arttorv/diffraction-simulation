@@ -17,7 +17,7 @@ def main():
     print("2 - Objective View Plot")
     print("3 - Rotatinator View Plot")
 
-    case = int(input("Enter the case number: "))
+    case = int(input("Enter the simulation number: "))
 
     # 1 - Diffraction Orders Overview
     if case == 1:
