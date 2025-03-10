@@ -1,5 +1,7 @@
 # Simulation of structural colors from periodic grating 
 
+Run main.py to choose simulation. 
+
 ## Simulation 1: Diffraction Orders Overview
 <img src="images/diff_order_overview.png" alt="Example Image 1" width="400"/>
 
