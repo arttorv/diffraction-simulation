@@ -25,7 +25,7 @@ def main():
         if case == 1:
             period = 1900  # Period of the grating
             inc_angle = 0  # Incident angle of white light
-            obs_angle = -30
+            obs_angle = -30 # Observation angle
             na = 0.28  # Numerical aperture of objective
             m_values = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
             wavelength_interval = 10
@@ -42,7 +42,7 @@ def main():
         elif case == 2:
             period = 1900  # Period of the grating
             inc_angle = 0  # Incident angle in degree
-            obs_angle = -17.5
+            obs_angle = -17.5 # Observation angle
             na = 0.28  # Numerical aperture of objective 
             m_values = [0, 1, 2, 3, 4]
             wavelength_step = 4
@@ -59,8 +59,8 @@ def main():
         elif case == 3:
             period = 1700  # Period of the grating
             inc_angle = 0  # Incident angle in degree
-            m_values = [1, 2, 3, 4]
-            angle_resolution = 1
+            m_values = [1, 2, 3, 4] # Orders to plot
+            angle_resolution = 1 # Colors are plotted at this resolution
             dark_mode = True
             rotatinator_view(period=period, 
                              inc_angle=inc_angle, 

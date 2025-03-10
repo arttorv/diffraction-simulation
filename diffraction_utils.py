@@ -266,6 +266,6 @@ def polar_orders_overview(period,
 
     update(None)  # Initial plot
 
-    plt.show(block=False)
+    plt.show(block=True)
 
 

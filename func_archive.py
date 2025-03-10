@@ -3,6 +3,10 @@ from scipy.stats import linregress
 import matplotlib.pyplot as plt
 from diffraction_utils import DiffractionLine
 
+"""
+Old functions not used anymore
+"""
+
 def sensitivity_vs_strain(periodicities, theta_inc_deg, obs_angle_deg):
     strain_percent_span = 10
     sensitivities = {}
