@@ -4,11 +4,29 @@ from matplotlib.widgets import Slider
 from scipy.stats import linregress
 
 
+
 #----------------------------------
 # -------- BASIC FUNCTIONS --------
 #----------------------------------
 
 from wavelen2rgb import wavelen2rgb
+
+def set_dark_mode(dark_mode=True):
+    """Configures Matplotlib for dark mode styling if enabled."""
+    if dark_mode:
+        plt.rcParams.update({
+            'axes.facecolor': '#2E2E2E',
+            'axes.edgecolor': 'grey',
+            'figure.facecolor': '#2E2E2E',
+            'figure.edgecolor': 'white',
+            'axes.labelcolor': 'white',
+            'xtick.color': 'white',
+            'ytick.color': 'white',
+            'grid.color': 'gray',
+            'text.color': 'white',
+            'legend.facecolor': '#2E2E2E',
+            'legend.edgecolor': 'white'
+        })
 
 #----------------------------------
 # ------------ CLASS  -------------
@@ -49,8 +67,18 @@ class DiffractionLine:
 # -------- PROGRAMS --------
 #---------------------------------
 
-def rotatinator_view(period, inc_angle=0, angle_res=0.5, wl_range=[400, 720], m_values=[1, 2, 3, 4], dark_mode=True):
-    angle_vals = np.arange(0, 91, angle_res)
+def rotatinator_view(period, inc_angle=0, 
+                     angle_res=0.5, 
+                     wl_range=[400, 720], 
+                     angle_range=[0, 90], 
+                     scale_height=1, 
+                     m_values=[1, 2, 3, 4],
+                     x_grid = False,
+                     h_sep_line = False, 
+                     dark_mode=True):
+    
+    # Calculate wavelength at lines in plot for each order
+    angle_vals = np.arange(angle_range[0], angle_range[1]+1, angle_res)
     diffraction_data = []  # Store (order, angle, wavelength, color)
 
     for m in m_values:
@@ -62,48 +90,45 @@ def rotatinator_view(period, inc_angle=0, angle_res=0.5, wl_range=[400, 720], m_
                 color = wavelen2rgb(wl) if m != 0 else (0.5, 0.5, 0.5)
                 diffraction_data.append((m, diff_angle, wl, color))
     
-    if dark_mode == True:
-            # Greyish background settings
-            plt.rcParams.update({
-                'axes.facecolor': '#2E2E2E',
-                'axes.edgecolor': 'grey',
-                'figure.facecolor': '#2E2E2E',
-                'figure.edgecolor': 'white',
-                'axes.labelcolor': 'white',
-                'xtick.color': 'white',
-                'ytick.color': 'white',
-                'grid.color': 'gray',
-                'text.color': 'white',
-                'legend.facecolor': '#2E2E2E',
-                'legend.edgecolor': 'white'
-            })
+    # Initalize dark mode plot
+    set_dark_mode(dark_mode)
 
     # Plot
-    fig, ax = plt.subplots(figsize=(10, 3))
-    plt.subplots_adjust(left=0.1, right=0.9, top=0.85, bottom=0.15)
+    fig, ax = plt.subplots(figsize=(10, 3*scale_height))
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.95*scale_height, bottom=0.15*(1/scale_height))
     
+    height = 0.85
+
     for m, diff_angle, wl, color in diffraction_data:
         y_offset = -m  # Stagger orders vertically
-        rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - 0.5), angle_res, 1, color=color, alpha=1)
+        rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - height/2), angle_res, height, color=color, alpha=1)
         ax.add_patch(rect)
     
+    # Fontsize
+    plt.rcParams.update({'font.size': 8})
+    ax.tick_params(axis='both', which='major', labelsize=8)
+    ax.xaxis.label.set_size(8)
+    ax.yaxis.label.set_size(8)
+
     # Grid and formatting
-    ax.set_xlim(0, 90)
+    ax.set_xlim(angle_range[0], angle_range[1])
     ax.set_ylim(-max(m_values) - 0.5, -0.5)
     ax.set_yticks([-m for m in m_values])
-    ax.set_yticklabels([f'Order {m}' for m in m_values])
+    ax.set_yticklabels([f'{m}' for m in m_values])
     ax.set_xlabel("Diffraction Angle (degrees)")
-    title_line_1 = f"Diffraction Orders for Grating Period = {period:.0f} nm"
+    ax.set_ylabel("Order")
+    title_line_1 = f"Diffraction Orders for Grating Period = {period:.0f} nm, Wavelength Range: {wl_range[0]} - {wl_range[1]} nm"
     title_line_2 = f"\nIncident Angle = {inc_angle:.1f}°, Angle Resolution = {angle_res}°"
     ax.set_title(title_line_1 + title_line_2)
-    ax.grid(axis='x', linestyle='--', alpha=0.5, color='gray')
+    if x_grid == True:
+        ax.grid(axis='x', linestyle='--', alpha=0.5, color='gray')
     
     # Horizontal separation lines
-    for m in range(min(m_values) - 1, max(m_values) + 2):
-        ax.axhline(-m + 0.5, color='gray', linewidth=2)
+    if h_sep_line == True:
+        for m in range(min(m_values) - 1, max(m_values) + 2):
+            ax.axhline(-m + 0.5, color='gray', linewidth=2*scale_height)
 
-    
-    plt.show(block = False)
+    plt.show(block = True)
 
 def objective_view(period, 
                 inc_angle, 
@@ -134,21 +159,8 @@ def objective_view(period,
                     color = wavelen2rgb(wl)
                 x_proj_data.append((x_proj, wl, color, diff_angle))
 
-    if dark_mode == True:
-        # Greyish background settings
-        plt.rcParams.update({
-            'axes.facecolor': '#2E2E2E',
-            'axes.edgecolor': 'grey',
-            'figure.facecolor': '#2E2E2E',
-            'figure.edgecolor': 'white',
-            'axes.labelcolor': 'white',
-            'xtick.color': 'white',
-            'ytick.color': 'white',
-            'grid.color': 'gray',
-            'text.color': 'white',
-            'legend.facecolor': '#2E2E2E',
-            'legend.edgecolor': 'white'
-        })
+    # Initalize dark mode plot
+    set_dark_mode(dark_mode)
 
     # Plotting
     fig, ax = plt.subplots(figsize=(8, 3))
@@ -188,21 +200,8 @@ def polar_orders_overview(period,
     
     wavelengths = np.arange(wavelength_start, wavelength_stop+wavelength_interval, wavelength_interval) 
     
-    if dark_mode == True:
-        # Greyish background settings
-        plt.rcParams.update({
-            'axes.facecolor': '#2E2E2E',
-            'axes.edgecolor': 'grey',
-            'figure.facecolor': '#2E2E2E',
-            'figure.edgecolor': 'white',
-            'axes.labelcolor': 'white',
-            'xtick.color': 'white',
-            'ytick.color': 'white',
-            'grid.color': 'gray',
-            'text.color': 'white',
-            'legend.facecolor': '#2E2E2E',
-            'legend.edgecolor': 'white'
-        })
+    # Initalize dark mode plot
+    set_dark_mode(dark_mode)
 
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     plt.subplots_adjust(bottom=0)  # Adjust bottom space for two sliders
@@ -267,5 +266,4 @@ def polar_orders_overview(period,
     update(None)  # Initial plot
 
     plt.show(block=True)
-
 
