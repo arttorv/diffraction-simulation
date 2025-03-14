@@ -57,7 +57,7 @@ def main():
 
     # 3 - Rotatinator View Plot
     elif case == 3:
-        period = 2300  # Period of the grating
+        period = 1900  # Period of the grating
         inc_angle = 0  # Incident angle in degree
         m_values = [1, 2, 3, 4] # Orders to plot
         angle_resolution = 0.25 # Colors are plotted at this resolution

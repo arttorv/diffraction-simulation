@@ -71,7 +71,7 @@ class DiffractionLine:
 
 def rotatinator_view(period, inc_angle=0, 
                      angle_res=0.5, 
-                     wl_range=[400, 720], 
+                     wl_range=[420, 700], 
                      angle_range=[0, 90], 
                      scale_height=1, 
                      m_values=[1, 2, 3, 4],
@@ -220,7 +220,7 @@ def objective_view(period,
     ax.set_title(title_line_1 + '\n' + title_line_2 + '\n' + title_line_3)
     ax.legend()
     
-    plt.show(block=False)      
+    plt.show(block=True)      
 
 def polar_orders_overview(period, 
                 inc_angle, 
