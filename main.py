@@ -60,7 +60,7 @@ def main():
         period = 2300  # Period of the grating
         inc_angle = 0  # Incident angle in degree
         m_values = [1, 2, 3, 4] # Orders to plot
-        angle_resolution = 1 # Colors are plotted at this resolution
+        angle_resolution = 0.25 # Colors are plotted at this resolution
         angle_range = [0, 75] # [start angle, stop angle]
         scale_height = 0.6
         x_grid = False

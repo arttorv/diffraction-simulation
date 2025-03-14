@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from scipy.stats import linregress
+from colour_utils import *
 
 
 
@@ -10,7 +11,7 @@ from scipy.stats import linregress
 # -------- BASIC FUNCTIONS --------
 #----------------------------------
 
-from wavelen2rgb import wavelen2rgb
+from archive.wavelen2rgb import wavelen2rgb
 
 def set_dark_mode(dark_mode=True):
     """Configures Matplotlib for dark mode styling if enabled."""
@@ -88,7 +89,7 @@ def rotatinator_view(period, inc_angle=0,
             wl = diffraction_line.wavelength
             
             if wl_range[0] <= wl <= wl_range[1]:
-                color = wavelen2rgb(wl) if m != 0 else (0.5, 0.5, 0.5)
+                color = rgb_from_wavelength(wl) if m != 0 else (0.5, 0.5, 0.5)
                 diffraction_data.append((m, diff_angle, wl, color))
     
     # Initalize dark mode plot
@@ -105,6 +106,35 @@ def rotatinator_view(period, inc_angle=0,
         rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - height/2), angle_res, height, color=color, alpha=1)
         ax.add_patch(rect)
     
+    # Add mixing line below the last order
+    # The mixing line will be drawn at a y-position below -max(m_values)
+    mixing_y = -max(m_values) - 1.0   # y center of the mixing row
+    mixing_height = height * 0.8      # mixing row height (adjustable)
+
+    # For each diffraction angle, determine the color to plot:
+    # - If there are two overlapping orders, mix them.
+    # - If there is one order, use its color.
+    # - If there are no orders at that angle, skip drawing.
+    for diff_angle in angle_vals:
+        overlapping = [d for d in diffraction_data if abs(d[1] - diff_angle) < 1e-6]
+        if len(overlapping) == 0:
+            # Leave blank if no orders are present at this angle.
+            continue
+        elif len(overlapping) == 1:
+            mix_color = overlapping[0][3]
+        elif len(overlapping) == 2:
+            wl1 = overlapping[0][2]
+            wl2 = overlapping[1][2]
+            mix_color = mix_two_wavelengths(wl1, wl2)
+        else:
+            # Fallback: if more than two orders overlap, just take the first two.
+            wl1 = overlapping[0][2]
+            wl2 = overlapping[1][2]
+            mix_color = mix_two_wavelengths(wl1, wl2)
+        
+        rect = plt.Rectangle((diff_angle - angle_res/2, mixing_y - mixing_height/2), angle_res, mixing_height, color=mix_color, alpha=1)
+        ax.add_patch(rect)
+    
     # Fontsize
     plt.rcParams.update({'font.size': 8})
     ax.tick_params(axis='both', which='major', labelsize=8)
@@ -113,7 +143,8 @@ def rotatinator_view(period, inc_angle=0,
 
     # Grid and formatting
     ax.set_xlim(angle_range[0], angle_range[1])
-    ax.set_ylim(-max(m_values) - 0.5, -0.5)
+    # Extend the y-limit to include the mixing line.
+    ax.set_ylim(mixing_y - mixing_height, -0.5)
     ax.set_yticks([-m for m in m_values])
     ax.set_yticklabels([f'{m}' for m in m_values])
     ax.set_xlabel("Diffraction Angle (degrees)")
@@ -129,7 +160,9 @@ def rotatinator_view(period, inc_angle=0,
         for m in range(min(m_values) - 1, max(m_values) + 2):
             ax.axhline(-m + 0.5, color='gray', linewidth=2*scale_height)
 
-    plt.show(block = True)
+    plt.show(block=True)
+
+
 
 def objective_view(period, 
                 inc_angle, 
@@ -157,7 +190,7 @@ def objective_view(period,
                 if m == 0:
                     color = (0.5, 0.5, 0.5)  # Grey color for m=0
                 else:
-                    color = wavelen2rgb(wl)
+                    color = rgb_from_wavelength(wl)
                 x_proj_data.append((x_proj, wl, color, diff_angle))
 
     # Initalize dark mode plot
@@ -231,7 +264,7 @@ def polar_orders_overview(period,
                     theta_m_rad = np.arcsin(sine_term)
                     theta_polar = np.pi/2 - theta_m_rad
 
-                    color = wavelen2rgb(wavelength) if m != 0 else (0, 0, 0)
+                    color = rgb_from_wavelength(wavelength) if m != 0 else (0, 0, 0)
                     ax.arrow(theta_polar, 0, 0, 0.8, head_width=0.02, head_length=0.02, fc=color, ec=color, alpha=0.7)
                     ax.text(theta_polar, 0.85, f'{m}', color=color, fontsize=8, ha='center', va='baseline')
 

@@ -41,7 +41,8 @@ def get_XYZ_from_file(wavelength, data=None):
         data = load_data()
         if data is None:
             return None
-
+    
+    wavelength = round(wavelength)
     row = data[data["wavelength"] == wavelength]
     if row.empty:
         print(f"Wavelength {wavelength} nm not found in the data.")
@@ -113,6 +114,8 @@ def mix_two_wavelengths(wl1, wl2):
         print("Error: 'CIE_cc_1931_2deg.csv' not found in the current folder.")
         return None
 
+    wl1 = round(wl1)
+    wl2 = round(wl2)
     # Retrieve the rows corresponding to each wavelength.
     row1 = data[data["wavelength"] == wl1]
     row2 = data[data["wavelength"] == wl2]
@@ -137,12 +140,8 @@ def mix_two_wavelengths(wl1, wl2):
     # Convert the averaged xyY back to XYZ.
     X_mid, Y_mid, Z_mid = xyY_to_XYZ(x_mid, y_mid, Y_mid)
 
-    print("Mixed XYZ:", (X_mid, Y_mid, Z_mid))
-    print("Mixed xyY:", (x_mid, y_mid, Y_mid))
-
     # Convert the mixed XYZ to sRGB.
     rgb = XYZ_to_sRGB(X_mid, Y_mid, Z_mid)
-    print("Resulting sRGB:", rgb)
     return rgb
 
 def rgb_from_wavelength(wavelength, data=None):
@@ -225,6 +224,6 @@ if __name__ == "__main__":
     color_a = 600
     color_b = 423
     mixed_rgb = mix_two_wavelengths(color_a, color_b)
-    mono_rgb = rgb_from_wavelength(573)
+    mono_rgb = rgb_from_wavelength(580)
     if mixed_rgb is not None:
         plot_color(mono_rgb, title=f"Mixed Color from {color_a} nm & {color_b} nm")
