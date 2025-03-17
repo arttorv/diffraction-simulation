@@ -163,6 +163,8 @@ def rgb_from_wavelength(wavelength, data=None):
     
     return rgb
 
+
+
 #----------------------------------
 # -------- PLOT FUNCTIONS --------
 #----------------------------------
