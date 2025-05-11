@@ -17,16 +17,16 @@ def set_dark_mode(dark_mode=True):
     """Configures Matplotlib for dark mode styling if enabled."""
     if dark_mode:
         plt.rcParams.update({
-            'axes.facecolor': '#2E2E2E',
+            'axes.facecolor': 'black',
             'axes.edgecolor': 'grey',
-            'figure.facecolor': '#2E2E2E',
+            'figure.facecolor': 'black',
             'figure.edgecolor': 'white',
             'axes.labelcolor': 'white',
             'xtick.color': 'white',
             'ytick.color': 'white',
             'grid.color': 'gray',
             'text.color': 'white',
-            'legend.facecolor': '#2E2E2E',
+            'legend.facecolor': 'black',
             'legend.edgecolor': 'white'
         })
 
@@ -69,6 +69,132 @@ class DiffractionLine:
 # -------- PROGRAMS --------
 #---------------------------------
 
+def diffraction_CIE_view(period, 
+                         inc_angle=0, 
+                         angle_res=0.5, 
+                         wl_range=[420, 700], 
+                         angle_range=[0, 90], 
+                         annotate_angles=False, 
+                         m_values=[1, 2, 3, 4],
+                         dark_mode=True):
+    """
+    Calculates the mixed diffraction orders (mixed_orders) for a range of diffraction angles and plots
+    them on the CIE 1931 Chromaticity Diagram.
+    
+    Parameters
+    ----------
+    period : float
+        Grating period (in the same units as the wavelengths, e.g. nm).
+    inc_angle : float, optional
+        Incident angle in degrees (default is 0).
+    angle_res : float, optional
+        Angular resolution for diffraction angles (in degrees; default is 0.5).
+    wl_range : list, optional
+        Wavelength range [min, max] in nm to consider (default is [420, 700]).
+    angle_range : list, optional
+        Diffraction angle range [start, stop] in degrees (default is [0, 90]).
+    annotate_angles : bool, optional
+        If True, annotate each plotted point with its diffraction angle (default is False).
+    m_values : list, optional
+        List of diffraction orders to consider (default is [1, 2, 3, 4]).
+    dark_mode : bool, optional
+        If True, configure the plot in dark mode (default is True).
+    """
+    # Enable dark mode styling if needed.
+    set_dark_mode(dark_mode)
+    
+    # Generate the set of diffraction angles to evaluate.
+    angle_vals = np.arange(angle_range[0], angle_range[1] + angle_res, angle_res)
+    diffraction_data = []  # Each entry is a tuple: (m, diff_angle, wavelength)
+    
+    # For each diffraction order and angle, calculate the corresponding wavelength.
+    for m in m_values:
+        for diff_angle in angle_vals:
+            d_line = DiffractionLine(grating_period=period, inc_angle=inc_angle, m=m, diff_angle=diff_angle)
+            wl = d_line.wavelength
+            if wl_range[0] <= wl <= wl_range[1]:
+                diffraction_data.append((m, diff_angle, wl))
+    
+    # Prepare a list for the mixed orders (one per diffraction angle).
+    mixed_points = []  # Each element: (x, y, sRGB_color, diff_angle)
+
+    # Helper: Convert a wavelength to its (x, y, Y) coordinates.
+    def wavelength_to_xy(wl):
+        XYZ = get_XYZ_from_file(round(wl))
+        if XYZ is None:
+            return None
+        return XYZ_to_xyY(*XYZ)  # (x, y, Y)
+
+    # Helper: Mix two wavelengths in the chromaticity diagram by averaging their xy coordinates.
+    def mix_two_wavelengths_xy(wl1, wl2):
+        try:
+            data = load_data()
+        except Exception:
+            return None
+        wl1 = round(wl1)
+        wl2 = round(wl2)
+        row1 = data[data["wavelength"] == wl1]
+        row2 = data[data["wavelength"] == wl2]
+        if row1.empty or row2.empty:
+            return None
+        X1, Y1, Z1 = row1.iloc[0]["X"], row1.iloc[0]["Y"], row1.iloc[0]["Z"]
+        X2, Y2, Z2 = row2.iloc[0]["X"], row2.iloc[0]["Y"], row2.iloc[0]["Z"]
+        x1, y1, Y1_xy = XYZ_to_xyY(X1, Y1, Z1)
+        x2, y2, Y2_xy = XYZ_to_xyY(X2, Y2, Z2)
+        x_mid = (x1 + x2) / 2
+        y_mid = (y1 + y2) / 2
+        Y_mid = (Y1_xy + Y2_xy) / 2
+        return (x_mid, y_mid, Y_mid)
+    
+    # Loop over each diffraction angle and compute the mixed order.
+    for diff_angle in angle_vals:
+        # Find all orders at this angle (using a tolerance to account for floating-point comparisons).
+        overlapping = [d for d in diffraction_data if abs(d[1] - diff_angle) < 1e-6]
+        if not overlapping:
+            continue
+        if len(overlapping) == 1:
+            _, angle_val, wl = overlapping[0]
+            xy = wavelength_to_xy(wl)
+            sRGB = rgb_from_wavelength(wl)
+        else:
+            # Mix the first two overlapping orders.
+            _, angle_val, wl1 = overlapping[0]
+            _, _, wl2 = overlapping[1]
+            xy = mix_two_wavelengths_xy(wl1, wl2)
+            sRGB = mix_two_wavelengths(wl1, wl2)
+        if xy is None or sRGB is None:
+            continue
+        mixed_points.append((xy[0], xy[1], sRGB, diff_angle))
+    
+    # Plot the results on the CIE 1931 Chromaticity Diagram.
+    import pylab
+    import colour.plotting as cl
+
+    # Plot the background diagram (note: using show=False to allow further plotting).
+    cl.plot_chromaticity_diagram_CIE1931(show=False)
+    
+    # Extract xy coordinates and colors.
+    xs = [pt[0] for pt in mixed_points]
+    ys = [pt[1] for pt in mixed_points]
+    colors = [pt[2] for pt in mixed_points]
+    
+    # Plot each mixed point using triangle markers.
+    pylab.scatter(xs, ys, c=colors, marker='^', s=40, edgecolors='black')
+    
+    # Optionally annotate with the diffraction angle.
+    if annotate_angles:
+        for pt in mixed_points:
+            x, y, col, angle_val = pt
+            pylab.annotate(f"{angle_val:.1f}°",
+                           xy=(x, y),
+                           xytext=(3, 3),
+                           textcoords='offset points',
+                           fontsize=8,
+                           color='black')
+    
+    # Render the complete plot.
+    cl.render(show=True, limits=(-0.1, 0.9, -0.1, 0.9), x_tighten=True, y_tighten=True)
+
 def rotatinator_view(period, inc_angle=0, 
                      angle_res=0.5, 
                      wl_range=[420, 700], 
@@ -77,7 +203,8 @@ def rotatinator_view(period, inc_angle=0,
                      m_values=[1, 2, 3, 4],
                      x_grid = False,
                      h_sep_line = False, 
-                     dark_mode=True):
+                     dark_mode=True,
+                     export_data=False):
     
     # Calculate wavelength at lines in plot for each order
     angle_vals = np.arange(angle_range[0], angle_range[1]+1, angle_res)
@@ -103,7 +230,7 @@ def rotatinator_view(period, inc_angle=0,
 
     for m, diff_angle, wl, color in diffraction_data:
         y_offset = -m  # Stagger orders vertically
-        rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - height/2), angle_res, height, color=color, alpha=1)
+        rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - height/2), angle_res, angle_res, color=color, alpha=1)
         ax.add_patch(rect)
     
     # Add mixing line below the last order
@@ -134,6 +261,11 @@ def rotatinator_view(period, inc_angle=0,
         
         rect = plt.Rectangle((diff_angle - angle_res/2, mixing_y - mixing_height/2), angle_res, mixing_height, color=mix_color, alpha=1)
         ax.add_patch(rect)
+
+        # Export csv of angles and rgb values
+        if export_data:
+            with open('diffraction_data.csv', 'a') as f:
+                f.write(f"{diff_angle},{mix_color[0]},{mix_color[1]},{mix_color[2]}\n")
     
     # Fontsize
     plt.rcParams.update({'font.size': 8})
@@ -162,12 +294,10 @@ def rotatinator_view(period, inc_angle=0,
 
     plt.show(block=True)
 
-
-
 def objective_view(period, 
                 inc_angle, 
                 obs_angle, 
-                wl_range=[400, 720], 
+                wl_range=[420, 700], 
                 wl_step=50, 
                 na=0.25, 
                 m_values=[-3, -2, -1, 0, 1, 2, 3],
@@ -227,8 +357,8 @@ def polar_orders_overview(period,
                 na, 
                 obs_angle,
                 m_values=[-4, -3, -2, -1, 0, 1, 2, 3, 4],
-                wavelength_start=400, 
-                wavelength_stop=680,
+                wavelength_start=532, 
+                wavelength_stop=532,
                 wavelength_interval=100,
                 dark_mode=False):
     

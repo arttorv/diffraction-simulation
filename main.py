@@ -17,19 +17,20 @@ def main():
     print("1 - Diffraction Orders Overview")
     print("2 - Objective View Plot")
     print("3 - Rotatinator View Plot")
+    print("4 - Diffraction CIE View Plot")
     print("0 - Quit")
 
     case = int(input("Enter the simulation number: "))
 
     # 1 - Diffraction Orders Overview
     if case == 1:
-        period = 1900  # Period of the grating
+        period = 1700  # Period of the grating
         inc_angle = 0  # Incident angle of white light
-        obs_angle = -30 # Observation angle
+        obs_angle = -0 # Observation angle
         na = 0.28  # Numerical aperture of objective
         m_values = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
         wavelength_interval = 10
-        dark_mode = True 
+        dark_mode = False 
         polar_orders_overview(period, 
                                 inc_angle, 
                                 na, 
@@ -57,26 +58,51 @@ def main():
 
     # 3 - Rotatinator View Plot
     elif case == 3:
-        period = 1900  # Period of the grating
+        period = 2365 # Period of the grating
         inc_angle = 0  # Incident angle in degree
-        m_values = [1, 2, 3, 4] # Orders to plot
-        angle_resolution = 0.25 # Colors are plotted at this resolution
-        angle_range = [0, 75] # [start angle, stop angle]
-        scale_height = 0.6
+        m_values = [1, 2, 3, 4, 5] # Orders to plot
+        angle_resolution = 1 # Colors are plotted at this resolution
+        angle_range = [4, 84] # [start angle, stop angle]
+        wl_range=[420, 680] # Wavelength range in nm
+        scale_height = 1.2
         x_grid = False
         h_sep_line = False
         dark_mode = True
+        export_data = True
 
         rotatinator_view(period=period, 
                             inc_angle=inc_angle, 
                             angle_res=angle_resolution,
                             angle_range=angle_range, 
+                            wl_range=wl_range,
                             m_values=m_values,
                             scale_height=scale_height,
                             x_grid=x_grid,
                             h_sep_line=h_sep_line,
-                            dark_mode=dark_mode)
+                            dark_mode=dark_mode,
+                            export_data=export_data)
     
+    # 4 - Diffraction CIE View Plot
+    elif case == 4:
+        period = 1900       # Grating period (nm)
+        inc_angle = 0       # Incident angle in degrees
+        angle_resolution = 1  # Angular resolution in degrees
+        wl_range = [420, 700]   # Wavelength range in nm
+        angle_range = [0, 90]   # Diffraction angle range in degrees
+        annotate_angles = True  # Annotate each point with its diffraction angle
+        m_values = [1, 2, 3, 4] # Diffraction orders to consider
+        dark_mode = False
+
+        diffraction_CIE_view(period=period, 
+                             inc_angle=inc_angle, 
+                             angle_res=angle_resolution, 
+                             wl_range=wl_range, 
+                             angle_range=angle_range, 
+                             annotate_angles=annotate_angles, 
+                             m_values=m_values, 
+                             dark_mode=dark_mode)
+        
+
     else:
         print("Invalid selection. Please choose again.")
 

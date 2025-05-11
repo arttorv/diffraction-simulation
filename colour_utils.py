@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pylab
+import colour.plotting as cl
 
 '''
 Using datasets from CIE 1931 available at https://cie.co.at/data-tables 
@@ -220,12 +222,66 @@ def display_color_from_wavelength(wavelength):
     plt.title(f"Wavelength: {wavelength} nm")
     plt.show()
 
+def plot_diffraction_spectrum(points, coordinate_type='xyY'):
+    """
+    Plot a list of color coordinates on the CIE 1931 Chromaticity Diagram.
+    
+    Parameters
+    ----------
+    points : list of tuple
+        A list of color coordinates. Each coordinate must be a 3-tuple.
+        If coordinate_type is 'XYZ', the coordinates are in the XYZ color space.
+        If coordinate_type is 'xyY', the coordinates are in the xyY color space.
+    coordinate_type : str, optional
+        The type of color coordinates provided ('XYZ' or 'xyY'). Default is 'xyY'.
+    
+    Example
+    -------
+    >>> # Example using xyY coordinates:
+    >>> points = [(0.3127, 0.3290, 1.0), (0.3500, 0.3600, 1.0), (0.3800, 0.3800, 1.0)]
+    >>> plot_diffraction_spectrum(points, coordinate_type='xyY')
+    
+    >>> # Example using XYZ coordinates:
+    >>> points = [(41.24, 21.26, 1.93), (35.76, 36.77, 8.12), (19.01, 7.22, 95.05)]
+    >>> plot_diffraction_spectrum(points, coordinate_type='XYZ')
+    """  
+
+    # Plot the background CIE 1931 chromaticity diagram.
+    cl.plot_chromaticity_diagram_CIE1931(show=False)
+
+    # Process each point to extract the chromaticity coordinates (x, y).
+    xs, ys = [], []
+    for point in points:
+        if coordinate_type.upper() == 'XYZ':
+            # Convert from XYZ to xyY using the utility function defined in this module.
+            x, y, _ = XYZ_to_xyY(*point)
+        else:
+            # Assume the point is already in xyY format.
+            x, y, _ = point
+        xs.append(x)
+        ys.append(y)
+
+    # Plot the connecting line with 50% transparency.
+    pylab.plot(xs, ys, '-', color='black', linewidth=1, alpha=0.3)
+
+    # Plot the points with smaller triangle markers (opaque).
+    pylab.plot(xs, ys, '^', color='black', alpha=1.0, markersize=4)
+
+    # Annotate each point with its order in the list.
+    for i, (x, y) in enumerate(zip(xs, ys)):
+        pylab.annotate(f"{i+1}",
+                       xy=(x, y),
+                       xytext=(-1, -10),
+                       textcoords='offset points',
+                       color='black',
+                       fontsize=6)
+
+    # Render the complete plot with defined limits.
+    cl.render(show=True, limits=(-0.1, 0.9, -0.1, 0.9), x_tighten=True, y_tighten=True)
+
+
 # Example usage:
 if __name__ == "__main__":
-    # Replace with your desired wavelengths, e.g., 450 nm and 700 nm.
-    color_a = 600
-    color_b = 423
-    mixed_rgb = mix_two_wavelengths(color_a, color_b)
-    mono_rgb = rgb_from_wavelength(580)
-    if mixed_rgb is not None:
-        plot_color(mono_rgb, title=f"Mixed Color from {color_a} nm & {color_b} nm")
+    # Example using xyY coordinates:
+    points = [(0.3127, 0.3290, 1.0), (0.3500, 0.3600, 1.0), (0.3800, 0.3800, 1.0)]
+    plot_diffraction_spectrum(points, coordinate_type='xyY')
