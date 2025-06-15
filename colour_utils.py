@@ -146,6 +146,34 @@ def mix_two_wavelengths(wl1, wl2):
     rgb = XYZ_to_sRGB(X_mid, Y_mid, Z_mid)
     return rgb
 
+def mix_wavelengths(wavelengths):
+    """
+    Mix an arbitrary number (e.g., 2 or 3) of wavelengths by averaging their chromaticity coordinates (xyY).
+    """
+    try:
+        data = pd.read_csv("CIE_cc_1931_2deg.csv", header=None, names=["wavelength", "X", "Y", "Z"])
+    except FileNotFoundError:
+        print("Error: 'CIE_cc_1931_2deg.csv' not found in the current folder.")
+        return None
+
+    XYZ_list = []
+    for wl in wavelengths:
+        wl_rounded = round(wl)
+        row = data[data["wavelength"] == wl_rounded]
+        if row.empty:
+            print(f"Error: Wavelength {wl_rounded} not found in the data.")
+            return None
+        XYZ_list.append([row.iloc[0]["X"], row.iloc[0]["Y"], row.iloc[0]["Z"]])
+
+    xyY_list = [XYZ_to_xyY(X, Y, Z) for X, Y, Z in XYZ_list]
+    x_avg = np.mean([xyY[0] for xyY in xyY_list])
+    y_avg = np.mean([xyY[1] for xyY in xyY_list])
+    Y_avg = np.mean([xyY[2] for xyY in xyY_list])
+
+    X_mix, Y_mix, Z_mix = xyY_to_XYZ(x_avg, y_avg, Y_avg)
+    return XYZ_to_sRGB(X_mix, Y_mix, Z_mix)
+
+
 def rgb_from_wavelength(wavelength, data=None):
     """
     Retrieve the XYZ values for a given wavelength and convert them to sRGB.

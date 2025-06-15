@@ -42,9 +42,9 @@ class DiffractionLine:
         
         # Automatically compute missing attributes
         if self.wavelength is None:
-            self.wavelength = - (grating_period/m) * (np.sin(np.radians(inc_angle)) - np.sin(np.radians(diff_angle))) 
+            self.wavelength = (grating_period/m) * (np.sin(np.radians(inc_angle)) + np.sin(np.radians(diff_angle))) 
         if self.diff_angle is None:
-            sine_term = (np.sin(np.radians(inc_angle)) - m * (wavelength / grating_period))
+            sine_term = - (np.sin(np.radians(inc_angle)) - m * (wavelength / grating_period))
             if np.abs(sine_term) > 1:
                 if m < 0:
                     self.diff_angle = 90
@@ -186,108 +186,91 @@ def diffraction_CIE_view(period,
                            xy=(x, y),
                            xytext=(3, 3),
                            textcoords='offset points',
-                           fontsize=8,
+                           fontsize=10,
                            color='black')
     
     # Render the complete plot.
     cl.render(show=True, limits=(-0.1, 0.9, -0.1, 0.9), x_tighten=True, y_tighten=True)
 
-def rotatinator_view(period, inc_angle=0, 
+def rotatinator_view(period, 
+                     inc_angle=0, 
                      angle_res=0.5, 
                      wl_range=[420, 700], 
                      angle_range=[0, 90], 
                      scale_height=1, 
                      m_values=[1, 2, 3, 4],
-                     x_grid = False,
-                     h_sep_line = False, 
+                     x_grid=False,
+                     h_sep_line=False, 
                      dark_mode=True,
                      export_data=False):
-    
-    # Calculate wavelength at lines in plot for each order
-    angle_vals = np.arange(angle_range[0], angle_range[1]+1, angle_res)
-    diffraction_data = []  # Store (order, angle, wavelength, color)
+    if export_data:
+        with open(f'diffraction_data_{period}.csv', 'w') as f:
+            pass
+
+    angle_vals = np.arange(angle_range[0], angle_range[1] + 1e-6, angle_res)
+    diffraction_data = []
 
     for m in m_values:
         for diff_angle in angle_vals:
             diffraction_line = DiffractionLine(grating_period=period, inc_angle=inc_angle, m=m, diff_angle=diff_angle)
             wl = diffraction_line.wavelength
-            
             if wl_range[0] <= wl <= wl_range[1]:
                 color = rgb_from_wavelength(wl) if m != 0 else (0.5, 0.5, 0.5)
                 diffraction_data.append((m, diff_angle, wl, color))
-    
-    # Initalize dark mode plot
-    set_dark_mode(dark_mode)
 
-    # Plot
-    fig, ax = plt.subplots(figsize=(10, 3*scale_height))
-    plt.subplots_adjust(left=0.1, right=0.9, top=0.95*scale_height, bottom=0.15*(1/scale_height))
-    
-    height = 0.85
+    set_dark_mode(dark_mode)
+    fig, ax = plt.subplots(figsize=(10, 4 * scale_height))
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.7 * scale_height, bottom=0.2 * (1 / scale_height))
+
+    height = 0.5
 
     for m, diff_angle, wl, color in diffraction_data:
-        y_offset = -m  # Stagger orders vertically
-        rect = plt.Rectangle((diff_angle - angle_res/2, y_offset - height/2), angle_res, angle_res, color=color, alpha=1)
+        y_offset = -m
+        rect = plt.Rectangle((diff_angle - angle_res / 2, y_offset - height / 2), angle_res, angle_res * 0.5, color=color, alpha=1)
         ax.add_patch(rect)
-    
-    # Add mixing line below the last order
-    # The mixing line will be drawn at a y-position below -max(m_values)
-    mixing_y = -max(m_values) - 1.0   # y center of the mixing row
-    mixing_height = height * 0.8      # mixing row height (adjustable)
 
-    # For each diffraction angle, determine the color to plot:
-    # - If there are two overlapping orders, mix them.
-    # - If there is one order, use its color.
-    # - If there are no orders at that angle, skip drawing.
+    mixing_y = -max(m_values) - 1.5
+    mixing_height = 0.8
+
     for diff_angle in angle_vals:
         overlapping = [d for d in diffraction_data if abs(d[1] - diff_angle) < 1e-6]
-        if len(overlapping) == 0:
-            # Leave blank if no orders are present at this angle.
+        if not overlapping:
             continue
         elif len(overlapping) == 1:
             mix_color = overlapping[0][3]
-        elif len(overlapping) == 2:
-            wl1 = overlapping[0][2]
-            wl2 = overlapping[1][2]
-            mix_color = mix_two_wavelengths(wl1, wl2)
         else:
-            # Fallback: if more than two orders overlap, just take the first two.
-            wl1 = overlapping[0][2]
-            wl2 = overlapping[1][2]
-            mix_color = mix_two_wavelengths(wl1, wl2)
-        
-        rect = plt.Rectangle((diff_angle - angle_res/2, mixing_y - mixing_height/2), angle_res, mixing_height, color=mix_color, alpha=1)
+            wls = [d[2] for d in overlapping]
+            mix_color = mix_wavelengths(wls[:3])  # Max 3 wavelengths for safety
+
+        rect = plt.Rectangle((diff_angle - angle_res / 2, mixing_y - mixing_height / 2), angle_res, mixing_height, color=mix_color, alpha=1)
         ax.add_patch(rect)
 
-        # Export csv of angles and rgb values
         if export_data:
-            with open('diffraction_data.csv', 'a') as f:
-                f.write(f"{diff_angle},{mix_color[0]},{mix_color[1]},{mix_color[2]}\n")
-    
-    # Fontsize
-    plt.rcParams.update({'font.size': 8})
-    ax.tick_params(axis='both', which='major', labelsize=8)
+            with open(f'diffraction_data_{period}.csv', 'a') as f:
+                f.write(f"{round(diff_angle,1)},{mix_color[0]},{mix_color[1]},{mix_color[2]}\n")
+
+    plt.rcParams.update({'font.size': 10})
+    ax.tick_params(axis='both', which='major', labelsize=10)
     ax.xaxis.label.set_size(8)
     ax.yaxis.label.set_size(8)
 
-    # Grid and formatting
     ax.set_xlim(angle_range[0], angle_range[1])
-    # Extend the y-limit to include the mixing line.
     ax.set_ylim(mixing_y - mixing_height, -0.5)
     ax.set_yticks([-m for m in m_values])
     ax.set_yticklabels([f'{m}' for m in m_values])
-    ax.set_xlabel("Diffraction Angle (degrees)")
-    ax.set_ylabel("Order")
+    ax.set_xlabel("Diffraction Angle (degrees)", fontsize=12)
+    ax.set_ylabel("Order", fontsize=12)
+
     title_line_1 = f"Diffraction Orders for Grating Period = {period:.0f} nm, Wavelength Range: {wl_range[0]} - {wl_range[1]} nm"
     title_line_2 = f"\nIncident Angle = {inc_angle:.1f}°, Angle Resolution = {angle_res}°"
-    ax.set_title(title_line_1 + title_line_2)
-    if x_grid == True:
+    # ax.set_title(title_line_1 + title_line_2, fontsize=14)
+
+    if x_grid:
         ax.grid(axis='x', linestyle='--', alpha=0.5, color='gray')
-    
-    # Horizontal separation lines
-    if h_sep_line == True:
+
+    if h_sep_line:
         for m in range(min(m_values) - 1, max(m_values) + 2):
-            ax.axhline(-m + 0.5, color='gray', linewidth=2*scale_height)
+            ax.axhline(-m + 0.5, color='gray', linewidth=2 * scale_height)
 
     plt.show(block=True)
 
@@ -354,8 +337,8 @@ def polar_orders_overview(period,
                 na, 
                 obs_angle,
                 m_values=[-4, -3, -2, -1, 0, 1, 2, 3, 4],
-                wavelength_start=532, 
-                wavelength_stop=532,
+                wavelength_start=400, 
+                wavelength_stop=700,
                 wavelength_interval=100,
                 dark_mode=False):
     

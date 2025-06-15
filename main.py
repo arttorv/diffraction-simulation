@@ -58,17 +58,17 @@ def main():
 
     # 3 - Rotatinator View Plot
     elif case == 3:
-        period = 2365 # Period of the grating
+        period = 1800 # Period of the grating
         inc_angle = 0  # Incident angle in degree
-        m_values = [1, 2, 3, 4, 5] # Orders to plot
+        m_values = [1, 2, 3, 4] # Orders to plot
         angle_resolution = 1 # Colors are plotted at this resolution
-        angle_range = [4, 84] # [start angle, stop angle]
+        angle_range = [0, 90] # [start angle, stop angle]
         wl_range=[420, 680] # Wavelength range in nm
         scale_height = 1.2
         x_grid = False
         h_sep_line = False
-        dark_mode = True
-        export_data = True
+        dark_mode = False
+        export_data = False
 
         rotatinator_view(period=period, 
                             inc_angle=inc_angle, 
@@ -87,7 +87,7 @@ def main():
         period = 1900       # Grating period (nm)
         inc_angle = 0       # Incident angle in degrees
         angle_resolution = 1  # Angular resolution in degrees
-        wl_range = [420, 700]   # Wavelength range in nm
+        wl_range = [360, 740]   # Wavelength range in nm
         angle_range = [0, 90]   # Diffraction angle range in degrees
         annotate_angles = True  # Annotate each point with its diffraction angle
         m_values = [1, 2, 3, 4] # Diffraction orders to consider
