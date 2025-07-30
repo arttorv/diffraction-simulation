@@ -1,6 +1,6 @@
-# Simulation of structural colors from periodic grating 
+# Calculation of Structural Colors from Periodic Gratings
 
-Run main.py to choose simulation. 
+Run main.py to choose program. The programs to choose from are listed below.  
 
 ## Simulation 1: Diffraction Orders Overview
 <img src="images/diff_order_overview.png" alt="Example Image 1" width="400"/>
