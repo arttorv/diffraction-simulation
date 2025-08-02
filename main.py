@@ -48,17 +48,17 @@ def main():
 
         # 2 - Rotatinator View Plot
         elif case == 2:
-            period = 2000 # Period of the grating
+            period = 690 # Period of the grating
             inc_angle = 0  # Incident angle in degree
             m_values = [1, 2, 3, 4] # Orders to plot
-            angle_resolution = 1 # Colors are plotted at this resolution
+            angle_resolution = 0.1 # Colors are plotted at this resolution
             angle_range = [0, 90] # [start angle, stop angle]
             wl_range=[420, 680] # Wavelength range in nm
             scale_height = 1.2
             x_grid = False
             h_sep_line = False
             dark_mode = False
-            export_data = False # Exported data is found in "export"-folder
+            export_data = True # Exported data is found in "export"-folder
 
             rotatinator_view(period=period, 
                                 inc_angle=inc_angle, 
