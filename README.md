@@ -16,4 +16,4 @@ Run main.py to choose program. The programs to choose from are listed below.
 2. Specify patch and resolution of calcluated frames
 3. Run file
 
-<img src="image/rotatinator_figure.png" alt="Experiment/Calculation comparison" width="400"/>
+<img src="images/rotatinator_figure.png" alt="Experiment/Calculation comparison" width="400"/>
