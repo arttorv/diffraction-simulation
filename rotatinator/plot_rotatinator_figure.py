@@ -8,7 +8,7 @@ import numpy as np
 # Insert values below: 
 
 # ------------------ #
-patch = 'P600' # P2100 or P600
+patch = 'P2100' # P2100 or P600
 simulation_resolution = 0.1 # Degrees (0.1 - 1)
 # ------------------ # 
 
