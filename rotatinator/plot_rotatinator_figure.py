@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-# Run this file to plot simulation/observed images comparison from rotatinator 
-# Insert values below: 
+# Run this file to plot simulation/observed images comparison from rotatinator. 
+# The experimental images are taken from "P600_images" and "P2100_images"
+# Calculated images are taken from the "export"-folder and are created by program 2.
+
+# Please insert values below: 
 
 # ------------------ #
 patch = 'P2100' # P2100 or P600
@@ -18,12 +21,13 @@ if patch == 'P2100':
         '5%': 'rotatinator/P2100_images/extracted_ROIs_5',
         '10%': 'rotatinator/P2100_images/extracted_ROIs_10'
     }
+    # Periods of strained grating 
     sim_p = {
         '0%': '2150',
         '5%': '2258',
         '10%': '2365'
     }
-    frame_stop = 10
+    frame_stop = 10 # Limit to observed angle in experiment
 
 elif patch == "P600":
     folders = {
@@ -31,12 +35,13 @@ elif patch == "P600":
         '5%': 'rotatinator/P600_images/extracted_rois_5',
         '10%': 'rotatinator/P600_images/extracted_rois_10'
     }
-    frame_stop = 20
+    # Periods of strained grating 
     sim_p = {
         '0%': '630',
         '5%': '660',
         '10%': '690'
     }
+    frame_stop = 20 # Limit to observed angle in experiment
 
 # Common frame numbers and folders for each strain
 frame_numbers = list(range(90, frame_stop, -1))  # From 90 to 10

@@ -8,7 +8,7 @@ def main():
             Generates a polar plot showing the diffraction orders within a specified numerical aperture.
     2 - Rotatinator View Plot:
             Calculates and plots the colors of the diffraction orders as seen by rotating the 
-            observing angle onto the grating
+            observing angle onto the grating. Can export data for "Rotatinator figure"
     3 - CIE View: 
             Calculates the expected colors for a range of diffraction angles and plots the color
             on the CIE diagram
