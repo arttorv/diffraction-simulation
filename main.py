@@ -28,26 +28,8 @@ def main():
             print("Invalid input. Please enter a number.")
             break
 
-        # 1 - Diffraction Orders Overview
+        # 1 - Goniometer View Plot
         if case == 1:
-            period = 900  # Period of the grating
-            inc_angle = 0  # Incident angle of white light
-            obs_angle = -0 # Observation angle
-            na = 0.28  # Numerical aperture of objective
-            m_values = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
-            wavelength_interval = 10
-            dark_mode = False 
-            polar_orders_overview(period, 
-                                    inc_angle, 
-                                    na, 
-                                    obs_angle, 
-                                    m_values=m_values, 
-                                    wavelength_interval=wavelength_interval, 
-                                    dark_mode=dark_mode)
-            break
-
-        # 2 - Rotatinator View Plot
-        elif case == 2:
             period = 690 # Period of the grating
             inc_angle = 0  # Incident angle in degree
             m_values = [1, 2, 3, 4] # Orders to plot
@@ -72,6 +54,25 @@ def main():
                                 dark_mode=dark_mode,
                                 export_data=export_data)
             break
+        
+        # 2 - Polar Plot Diffraction Orders Overview
+        elif case == 2:
+            period = 900  # Period of the grating
+            inc_angle = 0  # Incident angle of white light
+            obs_angle = -0 # Observation angle
+            na = 0.28  # Numerical aperture of objective
+            m_values = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5]
+            wavelength_interval = 10
+            dark_mode = False 
+            polar_orders_overview(period, 
+                                    inc_angle, 
+                                    na, 
+                                    obs_angle, 
+                                    m_values=m_values, 
+                                    wavelength_interval=wavelength_interval, 
+                                    dark_mode=dark_mode)
+            break
+
 
         # 3 - Diffraction CIE View Plot
         elif case == 3:

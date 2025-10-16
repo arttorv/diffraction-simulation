@@ -2,18 +2,18 @@
 
 Run main.py to choose program. The programs to choose from are listed below.  
 
-## Program 1: Diffraction Orders Overview
-<img src="images/diff_order_overview.png" alt="Example Image 1" width="400"/>
+## Program 1: Color Mixing Plot
+<img src="images/rotatinator_view.png" alt="Example Image 2" width="550"/>
 
-## Program 2: Rotate Viewing Angle Plot
-<img src="images/rotatinator_view.png" alt="Example Image 2" width="400"/>
+## Program 2: Polar Plot of Diffraction Orders
+<img src="images/diff_order_overview.png" alt="Example Image 1" width="400"/>
 
 ## Program 3: CIE View Plot
 <img src="images/cie_overview.png" alt="Example Image 3" width="400"/>
 
-# Make rotatinator figure
+<!-- # Goniometer Comparison figure 
 1. Go to plot_rotatinator_figure.py
 2. Specify patch and resolution of calcluated frames
 3. Run file
 
-<img src="images/rotatinator_figure.png" alt="Experiment/Calculation comparison" width="400"/>
+<img src="images/rotatinator_figure.png" alt="Experiment/Calculation comparison" width="400"/> -->

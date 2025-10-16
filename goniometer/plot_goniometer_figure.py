@@ -4,22 +4,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-# Run this file to plot simulation/observed images comparison from rotatinator. 
+# Run this file to plot simulation/observed images comparison from goniometer. 
 # The experimental images are taken from "P600_images" and "P2100_images"
 # Calculated images are taken from the "export"-folder and are created by program 2.
 
 # Please insert values below: 
 
 # ------------------ #
-patch = 'P2100' # P2100 or P600
+patch = 'P600' # P2100 or P600
 simulation_resolution = 0.1 # Degrees (0.1 - 1)
 # ------------------ # 
 
 if patch == 'P2100':
     folders = {
-        '0%': 'rotatinator/P2100_images/extracted_ROIs_0',
-        '5%': 'rotatinator/P2100_images/extracted_ROIs_5',
-        '10%': 'rotatinator/P2100_images/extracted_ROIs_10'
+        '0%': 'goniometer/P2100_images/extracted_ROIs_0',
+        '5%': 'goniometer/P2100_images/extracted_ROIs_5',
+        '10%': 'goniometer/P2100_images/extracted_ROIs_10'
     }
     # Periods of strained grating 
     sim_p = {
@@ -31,9 +31,9 @@ if patch == 'P2100':
 
 elif patch == "P600":
     folders = {
-        '0%': 'rotatinator/P600_images/extracted_rois_0',
-        '5%': 'rotatinator/P600_images/extracted_rois_5',
-        '10%': 'rotatinator/P600_images/extracted_rois_10'
+        '0%': 'goniometer/P600_images/extracted_rois_0',
+        '5%': 'goniometer/P600_images/extracted_rois_5',
+        '10%': 'goniometer/P600_images/extracted_rois_10'
     }
     # Periods of strained grating 
     sim_p = {
