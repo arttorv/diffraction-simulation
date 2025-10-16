@@ -13,27 +13,27 @@ def main():
             Calculates the expected colors for a range of diffraction angles and plots the color
             on the CIE diagram
     """
-
-    print("Choose a function to run:")
-    print("1 - Diffraction Orders Overview")
-    print("2 - Rotatinator View Plot")
+    print('\nWelcome to the diffraction grating visualization programs!\n')
+    print("The functions are listed below.\nTo change the parameters in the programs, \nedit the funtion arguments directly in main-file.\n ")
+    print("1 - Goniometer Comparison Plot")
+    print("2 - Polar Plot of Diffraction Orders")
     print("3 - Diffraction CIE View Plot")
     print("0 - Quit")
 
     while True:
 
         try:
-            case = int(input("Enter the function number: "))
+            case = int(input("Enter the program number: "))
         except ValueError:
             print("Invalid input. Please enter a number.")
             break
 
         # 1 - Goniometer View Plot
         if case == 1:
-            period = 690 # Period of the grating
+            period = 1600 # Period of the grating
             inc_angle = 0  # Incident angle in degree
             m_values = [1, 2, 3, 4] # Orders to plot
-            angle_resolution = 0.1 # Colors are plotted at this resolution
+            angle_resolution = 1 # Colors are plotted at this resolution
             angle_range = [0, 90] # [start angle, stop angle]
             wl_range=[420, 680] # Wavelength range in nm
             scale_height = 1.2
